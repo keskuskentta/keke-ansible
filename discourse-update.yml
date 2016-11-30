@@ -1,0 +1,20 @@
+---
+- name: Setup discourse
+  hosts: all
+  remote_user: root
+
+  tasks:
+    - include_vars: variables.yml
+    - name: pull discourse-docker image
+      git:
+        repo: "https://github.com/discourse/discourse_docker.git"
+        dest: /var/discourse
+    - name: upload config
+      template:
+        src: discourse/app.yml
+        dest: /var/discourse/containers/app.yml
+        mode: u=rw,g=r,o=r
+        owner: root
+        group: root
+    - name: rebuild app
+      shell: /var/discourse/launcher rebuild app

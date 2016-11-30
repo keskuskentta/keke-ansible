@@ -1,0 +1,33 @@
+---
+- hosts: all
+  remote_user: root
+  
+  roles:
+  - role: jnv.unattended-upgrades
+    unattended_automatic_reboot: false
+#    unattended_automatic_reboot_time: '01:00'
+  - role: kamaln7.swapfile
+    swapfile_size: 2GB
+    swapfile_swappiness: 10
+  - role: tersmitten.fail2ban
+  - role: angstwad.docker_ubuntu
+
+  tasks:
+    - include_vars: variables.yml
+    - name: update
+      shell: apt full-upgrade -y
+    - name: install ufw
+      shell: apt-get install ufw
+    - name: enable firewall
+      ufw: state=enabled policy=reject
+    - name: configure firewall
+      ufw: rule=allow port={{item}} proto=tcp
+      with_items:
+        - ssh
+#        - http
+#        - https
+    - name: install nixstats
+      shell: wget --no-check-certificate -N https://api.nixstats.com/install_python.sh && bash install_python.sh {{nixstats_id}}
+      args:
+        creates: /opt/nixstats
+

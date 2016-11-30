@@ -1,0 +1,29 @@
+---
+- name: Build new docker container for Nginx proxy
+  hosts: all
+  remote_user: root
+  
+  tasks:
+    - name: copy files to server
+      synchronize: src=nginx dest=/tmp
+      
+    - name: generate dh_params
+      shell: openssl dhparam -out /tmp/nginx/dhparams.pem 2048
+      args:
+        creates: /tmp/nginx/dhparams.pem
+
+    - name: build nginx image
+      command: docker build -t nginx /tmp/nginx
+
+    - name: start nginx container
+      docker:
+        name: nginx
+        image: nginx
+        state: reloaded
+        ports: [
+          "80:80",
+          "443:443"
+          ]
+        restart_policy: always
+        links: ghost
+        volumes: /var/discourse/shared:/var/discourse/shared

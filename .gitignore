@@ -1,0 +1,8 @@
+ghost/themes
+galaxy_roles
+ansible.cfg
+variables.yml
+nginx/ssl.crt
+nginx/ssl.key
+pre.yml
+

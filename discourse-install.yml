@@ -1,0 +1,29 @@
+---
+- name: Setup discourse
+  hosts: all
+  remote_user: root
+
+  tasks:
+    - include_vars: variables.yml
+    - name: create discourse directory
+      file:
+        path: /var/discourse
+        state: directory
+        mode: u=rwx,g=rx,o=rx
+        owner: root
+        group: root
+    - name: pull discourse-docker image
+      git:
+        repo: "https://github.com/discourse/discourse_docker.git"
+        dest: /var/discourse
+    - name: upload discourse config
+      template:
+        src: discourse/app.yml
+        dest: /var/discourse/containers/app.yml
+        mode: u=rw,g=r,o=r
+        owner: root
+        group: root
+    - name: bootstrap discourse
+      shell: /var/discourse/launcher bootstrap app
+    - name: start discourse
+      shell: /var/discourse/launcher start app

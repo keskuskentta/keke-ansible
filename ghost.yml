@@ -1,0 +1,34 @@
+---
+- name: Build new docker container for Ghost
+  hosts: all
+  remote_user: root
+  
+  tasks:
+    - include_vars: variables.yml
+    - name: create directory for persistent data
+      file:
+        path: /var/ghost
+        state: directory
+        mode: 0755
+        owner: 1000
+        group: root
+    - name: upload ghost config
+      template: 
+        src: ghost/config.js
+        dest: /var/ghost/config.js
+        mode: u=rw,g=r,o=r
+        owner: 1000
+        group: root
+    - name: copy themes to server
+      synchronize: src=ghost/themes/keke-ghost-theme dest=/var/ghost/themes
+    - name: start ghost container
+      docker:
+        name: ghost
+        image: library/ghost
+        state: reloaded
+        pull: always
+        hostname: blogi.keskuskentta.fi
+        restart_policy: always
+        volumes: /var/ghost:/var/lib/ghost
+        env: NODE_ENV=production
+
