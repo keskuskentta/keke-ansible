@@ -11,6 +11,7 @@
     swapfile_swappiness: 10
   - role: tersmitten.fail2ban
   - role: angstwad.docker_ubuntu
+    docker_opts: "--storage-driver=aufs"
 
   tasks:
     - include_vars: variables.yml
